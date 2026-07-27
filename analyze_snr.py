@@ -1,5 +1,4 @@
 #This is a simple Python project for oneNAV. It will read nmea log files from Beidou satellite and calculate average SNRs
-from symbol import continue_stmt
 
 
 def read_lines(path):       #Read all lines of the file as a list of strings
@@ -45,12 +44,24 @@ def beidou_snrs(line):
             continue
     return snrs
 
-def main():
-    lines = read_lines("logs/example-1.nmea")
+def analyze_file(path):
+    epochs = []
+    current = None
 
-    for line in lines:
-        if line.startswith("$GBGSV"):
-            print (beidou_snrs(line))
+    for line in read_lines(path):
+        if line.startswith("$GNGGA"):   #New epoch starts
+            current = (epoch_time(line),[])
+            epochs.append(current)
+        elif current is not None:
+            current[1].extend(beidou_snrs(line))    #Empty list for non BeiDou lines
+    return epochs
+
+def main():
+    epochs = analyze_file("logs/example-1.nmea")
+    for time, snrs in epochs:
+        print(time, snrs)
+
+
 
 
 if __name__ == '__main__':
