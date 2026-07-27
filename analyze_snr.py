@@ -56,10 +56,22 @@ def analyze_file(path):
             current[1].extend(beidou_snrs(line))    #Empty list for non BeiDou lines
     return epochs
 
-def main():
-    epochs = analyze_file("logs/example-1.nmea")
+def print_report(path, epochs):
+    print("File:", path)
+    print("%-13s %-13s %s" % ("Epoch", "Observations", "Average SNR"))
+    print("%-13s %-13s %s" % ("-" * 13, "-" * 13, "-" * 13))
+
     for time, snrs in epochs:
-        print(time, snrs)
+        count = len(snrs)
+        if count == 0:
+            print("%-13s %-13d %s" % (time, count, "No BeiDou Observations"))
+        else:
+            average = sum(snrs) / count
+            print("%-13s %-13d %.1f" % (time, count, average))
+
+def main():
+    epochs = analyze_file("logs/example-2.nmea")
+    print_report("logs/example-2.nmea", epochs)
 
 
 
