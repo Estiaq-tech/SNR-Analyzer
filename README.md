@@ -3,9 +3,10 @@ A project as part of the interview with OneNAV. This project is a command-line t
 
 # Instructions for running the tool
     ./run.sh logs/Example-1.nmea logs/Example-2.nmea ........
+or
     python3 analyze_snr.py logs/Example-1.nmea logs/Example-2.nmea ........
 
-It needs only Python 3.
+One or more files are supported. It needs only Python 3.
 
 # How it works
 The tool "analyze_snr.py" is one file with few small functions:
@@ -17,10 +18,16 @@ The tool "analyze_snr.py" is one file with few small functions:
 - print_report(path, epochs) : Make an average of SNRs per epoch and prints the result table
 - main() : command line and error handling
 
+It reads lines from a NMEA log file, convert GNGGA timestamp to hours, minutes and seconds (one epoch), counts total number of BeiDou satellite observations and calculates average SNRs for each epochs. Finally it prints the table.
+
+# Decisions
+- All valid observations are counted, satellite IDs are not duplicated.
+- The average is the arithmetic mean, as the task specifies (SNR in dB-Hz).
+- Empty or unreadable data is reported clearly. An epoch with no BeiDou data prints "no BeiDou observations".
+
 # Error handling
 - Missing or unreadable files gives a clear message and a non-zero exit status.
 - A broken or malformed line is skipped so that the tool doesn't crashes the run.
-- Empty epochs are reported clearly with No BeiDou Observation
 
 # AI Usage Statement
 I used AI (Claude and Gemini) as a part of my learning progress and review aid while building this tool. It explained overall approach and structure of an NMEA parser. It helped me understand the GSV message format (blocks of four fields and the trailing signal ID field). I wrote the code myself function by function, and verified each part against the real log file given to me. When I hit bugs, AI helped me to diagnose them (eg: an indentation error), which I fixed by myself.
