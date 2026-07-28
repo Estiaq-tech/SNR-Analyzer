@@ -1,5 +1,7 @@
 #This is a simple Python project for oneNAV. It will read nmea log files from Beidou satellite and calculate average SNRs
-
+import sys
+import argparse
+title = "Average BeiDou Satellite SNR from NMEA log per epoch."
 
 def read_lines(path):       #Read all lines of the file as a list of strings
     with open(path) as nmea_log:
@@ -70,9 +72,31 @@ def print_report(path, epochs):
             print("%-13s %-13d %.1f" % (time, count, average))
 
 def main():
-    epochs = analyze_file("logs/example-2.nmea")
-    print_report("logs/example-2.nmea", epochs)
+    parser = argparse.ArgumentParser(description = title)
+    parser.add_argument("logfiles", nargs="+", help="One or more NMEA files to analyze")
+    args = parser.parse_args()
 
+    error = False
+    for index, path in enumerate(args.logfiles):
+        if index > 0:
+            print()         #Blank line between files
+
+        try:
+            epochs = analyze_file(path)
+        except FileNotFoundError:
+            sys.stderr.write("Error: File not found: %s\n" % path)
+            error = True
+            continue
+        except OSError as issue:
+            sys.stderr.write("Error: Cannot read %s: %s\n" % (path, issue))
+            error = True
+            continue
+
+        print(title)
+        print_report(path, epochs)
+
+    if error:
+        sys.exit(1)
 
 
 
